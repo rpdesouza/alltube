@@ -11,18 +11,22 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v2
+      - name: Prepare
+        run: |
+            DOCKER_IMAGE=rpdesouza/alltube
+            DOCKER_PLATFORMS=linux/amd64,linux/arm,linux/arm64/v8
+            ALLTUBE_VERSION=`cat release-versions/alltube-latest-release.txt`
+            TAGS="--tag ${DOCKER_IMAGE}:latest"
+            TAGS="$TAGS --tag ${DOCKER_IMAGE}:${ALLTUBE_VERSION}"
+            echo ::set-output name=buildx_args::--platform ${DOCKER_PLATFORMS} \
+            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+            ${TAGS} --file ./Dockerfile
+      
       - name: install buildx
         id: buildx
-        uses: crazy-max/ghaction-docker-buildx@v3.1.0
-        with:
-          version: latest
+        uses: crazy-max/ghaction-docker-buildx@v3
       - name: login to docker hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
       - name: build the image
         run: |
-            version="v" \
-            version+=`cat release-versions/alltube-latest-release.txt` \
-            docker buildx build --push \
-            --tag rpdesouza/alltube:latest \
-            --tag rpdesouza/alltube:${version} \
-            --platform linux/amd64,linux/arm,linux/arm64/v8 .
+            docker buildx build --output "type=image,push=true" ${{ steps.prepare.outputs.buildx_args }}
