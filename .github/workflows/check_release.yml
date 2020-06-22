@@ -1,7 +1,8 @@
 name: check_release
 on:
-  schedule:
-    - cron:  '* * * * *'
+  push:
+    branches:
+      - master
 jobs:
   get-version:
     runs-on: ubuntu-latest
