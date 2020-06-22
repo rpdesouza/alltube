@@ -1,7 +1,7 @@
 name: check_release
 on:
   schedule:
-    - cron:  '0 0 * * 0'
+    - cron:  '* * * * *'
 jobs:
   get-version:
     runs-on: ubuntu-latest
@@ -11,7 +11,7 @@ jobs:
       - name: Fetch release version
         run: |
           curl -sL https://api.github.com/repos/Rudloff/alltube/releases/latest | \
-          jq -r ".tag_name" > alltube-latest-release.txt
+          jq -r ".tag_name" > release-versions/alltube-latest-release.txt
       - name: Check for modified files
         id: git-check
         run: echo ::set-output name=modified::$([ -z "`git status --porcelain`" ] && echo "false" || echo "true")
