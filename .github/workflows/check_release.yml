@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - test
 jobs:
   get-version:
     runs-on: ubuntu-latest
